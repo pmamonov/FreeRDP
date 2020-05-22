@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <winpr/crt.h>
 
@@ -506,6 +507,23 @@ BOOL gdi_bitmap_update(rdpContext* context, const BITMAP_UPDATE* bitmapUpdate)
 		}
 
 		Bitmap_Free(context, bmp);
+		{
+			static unsigned bps, pps;
+			static struct timeval now, nxt;
+
+			bps += 1;
+			pps += bitmap->width * bitmap->height;
+			gettimeofday(&now, NULL);
+			if (now.tv_sec >= nxt.tv_sec &&
+			    now.tv_usec >= nxt.tv_usec) {
+				fprintf(stderr, "bps %8d kpps %8d\n",
+					bps, pps / 1000);
+				bps = 0;
+				pps = 0;
+				nxt.tv_sec = now.tv_sec + 1;
+				nxt.tv_usec = 500;
+			}
+		}
 	}
 
 	return TRUE;
