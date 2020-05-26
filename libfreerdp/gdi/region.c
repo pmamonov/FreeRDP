@@ -601,7 +601,6 @@ INLINE BOOL gdi_InvalidateRegion(HGDI_DC hdc, INT32 x, INT32 y, INT32 w, INT32 h
 	GDI_RECT inv;
 	GDI_RECT rgn;
 	HGDI_RGN invalid;
-	HGDI_RGN cinvalid;
 
 	if (!hdc->hwnd)
 		return TRUE;
@@ -612,27 +611,6 @@ INLINE BOOL gdi_InvalidateRegion(HGDI_DC hdc, INT32 x, INT32 y, INT32 w, INT32 h
 	if (w == 0 || h == 0)
 		return TRUE;
 
-	cinvalid = hdc->hwnd->cinvalid;
-
-	if ((hdc->hwnd->ninvalid + 1) > (INT64)hdc->hwnd->count)
-	{
-		size_t new_cnt;
-		HGDI_RGN new_rgn;
-		new_cnt = hdc->hwnd->count * 2;
-		if (new_cnt > UINT32_MAX)
-			return FALSE;
-
-		new_rgn = (HGDI_RGN)realloc(cinvalid, sizeof(GDI_RGN) * new_cnt);
-
-		if (!new_rgn)
-			return FALSE;
-
-		hdc->hwnd->count = new_cnt;
-		cinvalid = new_rgn;
-	}
-
-	gdi_SetRgn(&cinvalid[hdc->hwnd->ninvalid++], x, y, w, h);
-	hdc->hwnd->cinvalid = cinvalid;
 	invalid = hdc->hwnd->invalid;
 
 	if (invalid->null)

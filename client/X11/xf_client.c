@@ -26,6 +26,7 @@
 #include "config.h"
 #endif
 
+#include <sys/time.h>
 #include <assert.h>
 #include <float.h>
 
@@ -316,6 +317,20 @@ static BOOL xf_sw_end_paint(rdpContext* context)
 	xfContext* xfc = (xfContext*)context;
 	rdpGdi* gdi = context->gdi;
 
+	if (1) {
+		static struct timeval now, nxt;
+
+		gettimeofday(&now, NULL);
+		if (now.tv_sec >= nxt.tv_sec &&
+		    now.tv_usec >= nxt.tv_usec) {
+			suseconds_t x = now.tv_usec + 100000;
+
+			nxt.tv_sec = now.tv_sec + x / 1000000;
+			nxt.tv_usec = x % 1000000;
+		} else
+			return TRUE;
+	}
+
 	if (gdi->suppressOutput)
 		return TRUE;
 
@@ -328,7 +343,6 @@ static BOOL xf_sw_end_paint(rdpContext* context)
 
 	if (!xfc->remote_app)
 	{
-		if (!xfc->complex_regions)
 		{
 			if (gdi->primary->hdc->hwnd->invalid->null)
 				return TRUE;
@@ -336,26 +350,7 @@ static BOOL xf_sw_end_paint(rdpContext* context)
 			xf_lock_x11(xfc);
 			XPutImage(xfc->display, xfc->primary, xfc->gc, xfc->image, x, y, x, y, w, h);
 			xf_draw_screen(xfc, x, y, w, h);
-			xf_unlock_x11(xfc);
-		}
-		else
-		{
-			if (gdi->primary->hdc->hwnd->ninvalid < 1)
-				return TRUE;
-
-			xf_lock_x11(xfc);
-
-			for (i = 0; i < ninvalid; i++)
-			{
-				x = cinvalid[i].x;
-				y = cinvalid[i].y;
-				w = cinvalid[i].w;
-				h = cinvalid[i].h;
-				XPutImage(xfc->display, xfc->primary, xfc->gc, xfc->image, x, y, x, y, w, h);
-				xf_draw_screen(xfc, x, y, w, h);
-			}
-
-			XFlush(xfc->display);
+			gdi->primary->hdc->hwnd->invalid->null = TRUE;
 			xf_unlock_x11(xfc);
 		}
 	}
