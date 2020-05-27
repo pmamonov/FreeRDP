@@ -507,6 +507,7 @@ BOOL gdi_bitmap_update(rdpContext* context, const BITMAP_UPDATE* bitmapUpdate)
 		}
 
 		Bitmap_Free(context, bmp);
+		nub++;
 		{
 			static unsigned bps, pps;
 			static struct timeval now, nxt;

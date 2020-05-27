@@ -328,11 +328,11 @@ static BOOL xf_sw_end_paint(rdpContext* context)
 
 	if (!xfc->remote_app)
 	{
-		if (!xfc->complex_regions)
+		if (1)
 		{
 			if (gdi->primary->hdc->hwnd->invalid->null)
 				return TRUE;
-
+			//fprintf(stderr, "%d %d %d\n", ninvalid, w, h);
 			xf_lock_x11(xfc);
 			XPutImage(xfc->display, xfc->primary, xfc->gc, xfc->image, x, y, x, y, w, h);
 			xf_draw_screen(xfc, x, y, w, h);

@@ -23,6 +23,8 @@
 #include <winpr/winpr.h>
 #include <winpr/platform.h>
 
+extern volatile unsigned int nub;
+
 #ifdef _WIN32
 #define FREERDP_CC __cdecl
 #else

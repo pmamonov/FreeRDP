@@ -47,6 +47,8 @@
 
 #define TAG FREERDP_TAG("core.fastpath")
 
+volatile unsigned int nub;
+
 /**
  * Fast-Path packet format is defined in [MS-RDPBCGR] 2.2.9.1.2, which revises
  * server output packets from the first byte with the goal of improving
@@ -666,6 +668,11 @@ int fastpath_recv_updates(rdpFastPath* fastpath, wStream* s)
 
 	rc = 0;
 fail:
+
+	if (nub < 100)
+		return rc;
+	else
+		nub = 0;
 
 	if (!update_end_paint(update))
 		return -4;
